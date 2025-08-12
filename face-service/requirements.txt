@@ -1,0 +1,7 @@
+flask
+pymongo
+python-dotenv
+face_recognition
+numpy
+Pillow
+gunicorn
