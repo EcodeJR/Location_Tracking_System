@@ -23,6 +23,20 @@ const storage = new GridFsStorage({
   }
 });
 
-const upload = multer({ storage });
+// Configure multer to keep file in memory for processing
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+    files: 1
+  },
+  fileFilter: (req, file, cb) => {
+    // Accept images only
+    if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
+      return cb(new Error('Only image files are allowed!'), false);
+    }
+    cb(null, true);
+  }
+});
 
 module.exports = { upload };

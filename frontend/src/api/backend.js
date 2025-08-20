@@ -21,6 +21,10 @@ export const uploadImage = (formData) =>
 
 export const myImages = () => api.get('/images/my')
 
+export const getUserImages = () => api.get('/images/user/gallery')
+
+export const deleteImage = (id) => api.delete(`/images/${id}`)
+
 // Optional face recognition — failures are swallowed by caller
 export const recognizeFace = (fileId) => api.post('/images/recognize', { fileId })
 

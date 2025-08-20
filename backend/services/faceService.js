@@ -9,7 +9,7 @@ async function recognizeFace(gridFsFileId) {
     const res = await axios.post(FACE_SERVICE_URL, { fileId: gridFsFileId });
     return res.data; // expected: [{ userId, confidence }, ...]
   } catch (err) {
-    console.error('Face service error', err.message);
+    console.error('Face service error', err);
     return [];
   }
 }

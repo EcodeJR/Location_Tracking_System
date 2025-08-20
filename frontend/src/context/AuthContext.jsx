@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState, useEffect, useContext } from 'react'
 import { login as apiLogin, register as apiRegister } from '../api/backend'
 import { AuthCtx } from './authContextStore'
 
@@ -38,4 +38,8 @@ export function AuthProvider({ children }) {
   const value = useMemo(() => ({ user, login, register, logout, loading }), [user, loading])
 
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>
+}
+
+export const useAuth = () => {
+  return useContext(AuthCtx)
 }
