@@ -105,7 +105,7 @@ export default function ImageUpload({ onUploaded }) {
       try {
         setNote('Getting your location...')
         const { lat, lng } = await getCurrentPosition()
-        console.log('Device location:', { lat, lng })
+        // console.log('Device location:', { lat, lng })
         
         // Add device location as fallback if EXIF doesn't have it
         formData.append('deviceLat', lat)

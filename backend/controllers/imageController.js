@@ -14,12 +14,12 @@ async function uploadImage(req, res, next) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
 
-    console.log('[DEBUG] Processing file upload:', {
-      originalname: file.originalname,
-      mimetype: file.mimetype,
-      size: file.size,
-      hasBuffer: !!file.buffer
-    });
+    // console.log('[DEBUG] Processing file upload:', {
+    //   originalname: file.originalname,
+    //   mimetype: file.mimetype,
+    //   size: file.size,
+    //   hasBuffer: !!file.buffer
+    // });
 
     // Get the GridFS bucket
     const bucket = await getBucket();
@@ -32,14 +32,14 @@ async function uploadImage(req, res, next) {
     let exif = {};
     try {
       exif = extractExif(file.buffer);
-      console.log('[DEBUG] EXIF data extracted:', {
-        hasGPS: !!(exif.GPSLatitude && exif.GPSLongitude),
-        GPSLatitude: exif.GPSLatitude,
-        GPSLongitude: exif.GPSLongitude,
-        GPSLatitudeRef: exif.GPSLatitudeRef,
-        GPSLongitudeRef: exif.GPSLongitudeRef,
-        otherKeys: Object.keys(exif).filter(k => !k.startsWith('GPS') && k !== 'thumbnail')
-      });
+      // console.log('[DEBUG] EXIF data extracted:', {
+      //   hasGPS: !!(exif.GPSLatitude && exif.GPSLongitude),
+      //   GPSLatitude: exif.GPSLatitude,
+      //   GPSLongitude: exif.GPSLongitude,
+      //   GPSLatitudeRef: exif.GPSLatitudeRef,
+      //   GPSLongitudeRef: exif.GPSLongitudeRef,
+      //   otherKeys: Object.keys(exif).filter(k => !k.startsWith('GPS') && k !== 'thumbnail')
+      // });
     } catch (exifErr) {
       console.warn('[WARN] Error extracting EXIF data:', exifErr.message);
     }
@@ -60,7 +60,7 @@ async function uploadImage(req, res, next) {
             type: 'Point', 
             coordinates: [lon, lat] // GeoJSON uses [longitude, latitude] order
           };
-          console.log('[DEBUG] Extracted valid GPS location:', location);
+          // console.log('[DEBUG] Extracted valid GPS location:', location);
         } else {
           console.warn('[WARN] Invalid GPS coordinates:', { lat, lon });
         }
@@ -68,7 +68,7 @@ async function uploadImage(req, res, next) {
         console.warn('[WARN] Error processing GPS data:', gpsErr);
       }
     } else {
-      console.log('[DEBUG] No GPS data found in EXIF or missing reference values');
+      // console.log('[DEBUG] No GPS data found in EXIF or missing reference values');
     }
 
     // Check for device location as fallback if EXIF doesn't have it
@@ -83,7 +83,7 @@ async function uploadImage(req, res, next) {
           type: 'Point',
           coordinates: [lng, lat] // GeoJSON uses [longitude, latitude]
         };
-        console.log('[DEBUG] Using device location as fallback:', location);
+        // console.log('[DEBUG] Using device location as fallback:', location);
       }
     }
 
@@ -104,24 +104,24 @@ async function uploadImage(req, res, next) {
       imageData.location = location;
     }
 
-    console.log('[DEBUG] Image metadata prepared:', {
-      hasLocation: !!imageData.location,
-      ...(imageData.location && { location: imageData.location }),
-      gridFsId: file.id || file._id,
-      size: file.size
-    });
+    // console.log('[DEBUG] Image metadata prepared:', {
+    //   hasLocation: !!imageData.location,
+    //   ...(imageData.location && { location: imageData.location }),
+    //   gridFsId: file.id || file._id,
+    //   size: file.size
+    // });
 
     const meta = new ImageMeta(imageData);
 
     // Save the metadata
     await meta.save();
     
-    console.log('[DEBUG] Image metadata saved:', {
-      fileId: file.id || file._id,
-      metaId: meta._id,
-      filename: file.originalname,
-      size: file.size
-    });
+    // console.log('[DEBUG] Image metadata saved:', {
+    //   fileId: file.id || file._id,
+    //   metaId: meta._id,
+    //   filename: file.originalname,
+    //   size: file.size
+    // });
 
     // Face recognition feature commented out for now
     // if (process.env.FACE_SERVICE_URL && (file.id || file._id)) {
@@ -190,7 +190,7 @@ async function uploadImage(req, res, next) {
 function gpsToDecimal(gpsArray, ref) {
   try {
     if (!gpsArray) {
-      console.log('[DEBUG] No GPS array provided');
+      // console.log('[DEBUG] No GPS array provided');
       return null;
     }
     
@@ -216,12 +216,12 @@ function gpsToDecimal(gpsArray, ref) {
       decimal = -Math.abs(decimal);
     }
     
-    console.log('[DEBUG] Converted GPS:', { 
-      original: gpsArray, 
-      ref, 
-      components: { deg, min, sec },
-      decimal 
-    });
+    // console.log('[DEBUG] Converted GPS:', { 
+    //   original: gpsArray, 
+    //   ref, 
+    //   components: { deg, min, sec },
+    //   decimal 
+    // });
     
     return decimal;
   } catch (error) {
@@ -234,11 +234,11 @@ function gpsToDecimal(gpsArray, ref) {
 async function getImage(req, res, next) {
   try {
     const imageId = req.params.id;
-    console.log(`[DEBUG] getImage - Request received for ID: ${imageId}`);
+    // console.log(`[DEBUG] getImage - Request received for ID: ${imageId}`);
     
     // Check if this is a special route that should be handled by getMyImages
     if (imageId === 'my') {
-      console.log('[DEBUG] getImage - Redirecting to getMyImages');
+      // console.log('[DEBUG] getImage - Redirecting to getMyImages');
       return getMyImages(req, res, next);
     }
     
@@ -280,7 +280,7 @@ async function getImage(req, res, next) {
     }
     
     const gridFsId = new mongoose.Types.ObjectId(imageMeta.gridFsId);
-    console.log(`[DEBUG] Found ImageMeta, looking for GridFS file with ID: ${gridFsId}`);
+    // console.log(`[DEBUG] Found ImageMeta, looking for GridFS file with ID: ${gridFsId}`);
     
     // Check if file exists in GridFS
     const files = await bucket.find({ _id: gridFsId }).toArray();
@@ -296,12 +296,12 @@ async function getImage(req, res, next) {
     }
     
     const fileDoc = files[0];
-    console.log('[DEBUG] File metadata:', {
-      filename: fileDoc.filename,
-      length: fileDoc.length,
-      uploadDate: fileDoc.uploadDate,
-      contentType: fileDoc.contentType
-    });
+    // console.log('[DEBUG] File metadata:', {
+    //   filename: fileDoc.filename,
+    //   length: fileDoc.length,
+    //   uploadDate: fileDoc.uploadDate,
+    //   contentType: fileDoc.contentType
+    // });
     
     const downloadStream = bucket.openDownloadStream(gridFsId);
     
@@ -326,7 +326,7 @@ async function getImage(req, res, next) {
     req.on('close', () => {
       if (!res.headersSent) {
         downloadStream.destroy();
-        console.log(`[DEBUG] Client disconnected while streaming file: ${gridFsId}`);
+        // console.log(`[DEBUG] Client disconnected while streaming file: ${gridFsId}`);
       }
     });
     
@@ -347,7 +347,7 @@ async function getImage(req, res, next) {
 // Get all images for the current user
 async function getMyImages(req, res, next) {
   try {
-    console.log(`[DEBUG] Fetching images for user: ${req.user.id}`);
+    // console.log(`[DEBUG] Fetching images for user: ${req.user.id}`);
     
     // Find all images for the user, sorted by most recent first
     const images = await ImageMeta.find({ uploader: req.user.id })
@@ -378,7 +378,7 @@ async function getMyImages(req, res, next) {
       };
     });
     
-    console.log(`[DEBUG] Found ${processedImages.length} images for user`);
+    // console.log(`[DEBUG] Found ${processedImages.length} images for user`);
     res.json(processedImages);
     
   } catch (error) {
@@ -396,7 +396,7 @@ async function getMyImages(req, res, next) {
 // Get all user images with location data
 async function getUserImagesWithLocations(req, res, next) {
   try {
-    console.log('[DEBUG] Fetching user images with locations for user:', req.user.id);
+    // console.log('[DEBUG] Fetching user images with locations for user:', req.user.id);
     
     const images = await ImageMeta.find({ 
       uploader: req.user.id,
@@ -406,14 +406,14 @@ async function getUserImagesWithLocations(req, res, next) {
     .sort({ uploadDate: -1 })
     .lean();
 
-    console.log(`[DEBUG] Found ${images.length} images with location data`);
+    // console.log(`[DEBUG] Found ${images.length} images with location data`);
     
     // Add full image URLs with the correct base path and API prefix
     const baseUrl = `${req.protocol}://${req.get('host')}`;
     const imagesWithUrls = images.map(img => {
       // Make sure to include the /api/images/ prefix in the URL
       const imageUrl = `${baseUrl}/api/images/${img._id}`;
-      console.log(`[DEBUG] Generated URL for image ${img._id}: ${imageUrl}`);
+      // console.log(`[DEBUG] Generated URL for image ${img._id}: ${imageUrl}`);
       
       return {
         ...img,
@@ -425,7 +425,7 @@ async function getUserImagesWithLocations(req, res, next) {
       };
     });
 
-    console.log('[DEBUG] Sending images with URLs to client');
+    // console.log('[DEBUG] Sending images with URLs to client');
     res.json(imagesWithUrls);
   } catch (error) {
     console.error('Error fetching user images with locations:', error);
@@ -451,14 +451,14 @@ async function deleteImage(req, res, next) {
     }
 
     // Debug log for user ID comparison
-    console.log('[DEBUG] Delete authorization check:', {
-      imageUploader: image.uploader,
-      imageUploaderType: typeof image.uploader,
-      imageUploaderString: String(image.uploader),
-      userId,
-      userIdType: typeof userId,
-      equalityCheck: image.uploader.toString() === userId.toString()
-    });
+    // console.log('[DEBUG] Delete authorization check:', {
+    //   imageUploader: image.uploader,
+    //   imageUploaderType: typeof image.uploader,
+    //   imageUploaderString: String(image.uploader),
+    //   userId,
+    //   userIdType: typeof userId,
+    //   equalityCheck: image.uploader.toString() === userId.toString()
+    // });
 
     // Check if the user is authorized to delete this image
     if (image.uploader.toString() !== userId.toString()) {

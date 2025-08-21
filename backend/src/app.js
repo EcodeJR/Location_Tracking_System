@@ -8,6 +8,7 @@ const { errorHandler } = require('../middleware/errorHandler');
 
 const app = express();
 
+const url = process.env.FRONTEND_URL;
 // Configure CORS with specific options
 const corsOptions = {
   origin: function (origin, callback) {
@@ -17,8 +18,7 @@ const corsOptions = {
     // List of allowed origins (add your frontend URL here)
     const allowedOrigins = [
       'http://localhost:3000', // Default React dev server
-      'http://localhost:5173', // Vite dev server
-      // Add production domains here when deployed
+      url, // In production frontend url and in development localhost
     ];
     
     if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
